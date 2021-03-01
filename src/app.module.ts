@@ -8,7 +8,7 @@ import { UsersController } from './users/users.controller';
 import { TripsModule } from './trips/trips.module';
 import { TripsController } from './trips/trips.controller';
 import { logger } from './common/middleware/logger.middleware';
-import { HttpExceptionFilter } from './common/filters/http-exception.filter';
+import { AllExceptionFilter } from './common/filters/all-exception.filter';
 
 @Module({
   imports: [
@@ -30,7 +30,7 @@ import { HttpExceptionFilter } from './common/filters/http-exception.filter';
     AppService,
     {
       provide: APP_FILTER,
-      useClass: HttpExceptionFilter,
+      useClass: AllExceptionFilter,
     },
   ],
 })

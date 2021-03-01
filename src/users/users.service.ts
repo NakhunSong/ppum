@@ -11,15 +11,23 @@ export class UsersService {
     private usersRepository: Repository<User>,
   ) {}
   
-  create(createUserDto: CreateUserDto): Promise<User> {
-    const user = new User();
-    user.email = createUserDto.email;
-    user.name = createUserDto.name;
-    user.password = createUserDto.password;
-    return this.usersRepository.save(user);
+  async create(createUserDto: CreateUserDto) {
+    try {
+      const user = new User();
+      user.email = createUserDto.email;
+      user.name = createUserDto.name;
+      user.password = createUserDto.password;
+      await this.usersRepository.save(user);
+    } catch (e) {
+      console.error(e);
+    }
   }
   
-  findAll(): Promise<User[]> {
-    return this.usersRepository.find();
+  async findAll(): Promise<User[]> {
+    try {
+      return this.usersRepository.find();
+    } catch (e) {
+      console.error(e);
+    }
   }
 }
