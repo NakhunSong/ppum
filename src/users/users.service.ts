@@ -23,11 +23,15 @@ export class UsersService {
     }
   }
   
-  async findAll(): Promise<User[]> {
+  async findAll(): Promise<User[] | undefined> {
     try {
       return this.usersRepository.find();
     } catch (e) {
       console.error(e);
     }
+  }
+
+  async findOne(email: string): Promise<User | undefined> {
+    return this.usersRepository.findOne({ where: { email }});
   }
 }

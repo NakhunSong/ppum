@@ -9,6 +9,7 @@ import { TripsModule } from './trips/trips.module';
 import { TripsController } from './trips/trips.controller';
 import { logger } from './common/middleware/logger.middleware';
 import { AllExceptionFilter } from './common/filters/all-exception.filter';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { AllExceptionFilter } from './common/filters/all-exception.filter';
     }),
     UsersModule,
     TripsModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [
