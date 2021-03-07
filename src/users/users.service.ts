@@ -14,8 +14,8 @@ export class UsersService {
   async create(createUserDto: CreateUserDto) {
     try {
       const user = new User();
-      user.email = createUserDto.email;
-      user.name = createUserDto.name;
+      user.username = createUserDto.username;
+      user.displayname = createUserDto.displayname;
       user.password = createUserDto.password;
       await this.usersRepository.save(user);
     } catch (e) {
@@ -31,7 +31,7 @@ export class UsersService {
     }
   }
 
-  async findOne(email: string): Promise<User | undefined> {
-    return this.usersRepository.findOne({ where: { email }});
+  async findOne(username: string): Promise<User | undefined> {
+    return this.usersRepository.findOne({ where: { username }});
   }
 }
