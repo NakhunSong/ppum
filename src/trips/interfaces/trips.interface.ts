@@ -3,4 +3,5 @@ export interface Trip {
   name: string;
   beginDate: string;
   endDate: string;
+  userId: string;
 }
