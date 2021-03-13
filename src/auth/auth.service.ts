@@ -24,8 +24,6 @@ export class AuthService {
       userId: result.id,
       username: result.username,
       displayname: result.displayname,
-      // iat: +new Date(),
-      // exp: +new Date(),
     };
     return {
       access_token: this.jwtService.sign(payload),

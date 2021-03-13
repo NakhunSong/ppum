@@ -7,16 +7,15 @@ import { Trip } from './trip.entity';
 import { TripsService } from './trips.service';
 
 @Controller('trips')
+@UseGuards(JwtAuthGuard)
 export class TripsController {
   constructor(private tripsService: TripsService) {}
 
-  @UseGuards(JwtAuthGuard)
   @Get()
   getTrips(@Request() req) {
     return this.tripsService.findAll(req.user.userId);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get(':id')
   getTrip(
     @Param('id') tripId: string,
@@ -28,7 +27,6 @@ export class TripsController {
     return this.tripsService.find(selectTripDto);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Post()
   create(
     @Body() createTripDto: CreateTripDto,
@@ -37,7 +35,6 @@ export class TripsController {
     this.tripsService.create(createTripDto, req.user.userId);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Put(':id')
   invite(
     @Body('username') username: string,
