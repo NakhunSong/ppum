@@ -1,5 +1,6 @@
+import { TripDate } from 'src/trip-dates/trip-date.entity';
 import { User } from 'src/users/user.entity';
-import { Column, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class Trip {
@@ -15,6 +16,9 @@ export class Trip {
   @Column()
   endDate: string;
 
+  @OneToMany(() => TripDate, tripDate => tripDate.trip)
+  tripDate: TripDate;
+  
   @ManyToOne(() => User, user => user.trip, {
     onDelete: 'CASCADE',
   })
