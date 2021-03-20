@@ -6,11 +6,13 @@ import { TripSubscriber } from './trip.subscriber';
 import { Trip } from './trip.entity';
 import { TripsController } from './trips.controller';
 import { TripsService } from './trips.service';
+import { TripDatesModule } from 'src/trip-dates/trip-dates.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Trip, User]),
     UsersModule,
+    TripDatesModule,
   ],
   controllers: [TripsController],
   providers: [TripsService, TripSubscriber],

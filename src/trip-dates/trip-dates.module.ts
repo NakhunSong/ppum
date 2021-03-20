@@ -8,7 +8,8 @@ import { TripDate } from './trip-date.entity';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Trip, TripDate])],
+  controllers: [TripDatesController],
   providers: [TripDatesService, TripDateSubscriber],
-  controllers: [TripDatesController]
+  exports: [TripDatesService],
 })
 export class TripDatesModule {}

@@ -1,5 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { CreateTripDatesDto } from 'src/trip-dates/dto/create-trip-date.dto';
+import { TripDatesService } from 'src/trip-dates/trip-dates.service';
 import { User } from 'src/users/user.entity';
 import { Repository } from 'typeorm';
 import { CreateTripDto } from './dto/create-trip.dto';
@@ -14,6 +16,7 @@ export class TripsService {
     private tripRepository: Repository<Trip>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    private tripdatesService: TripDatesService,
   ) {}
 
   async findAll(userId: string): Promise<Trip[]> {
@@ -45,7 +48,13 @@ export class TripsService {
         throw new UnauthorizedException();
       }
       trip.user = user;
-      await this.tripRepository.save(trip);
+      const createdTrip = await this.tripRepository.save(trip);
+      const { id: tripId } = createdTrip;
+      const createTripDatesDto = new CreateTripDatesDto();
+      createTripDatesDto.tripId = tripId;
+      createTripDatesDto.beginDate = createTripDto.beginDate;
+      createTripDatesDto.endDate = createTripDto.endDate;
+      await this.tripdatesService.createTripDates(createTripDatesDto);
     } catch (e) {
       console.error(e);
     }

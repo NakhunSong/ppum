@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Param, Post, Put, Request, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { CreateTripDatesDto } from 'src/trip-dates/dto/create-trip-date.dto';
 import { CreateTripDto } from './dto/create-trip.dto';
 import { SelectTripDto } from './dto/select-trip.dto';
 import { InviteTripDto } from './dto/update-trip.dto';
@@ -9,7 +10,9 @@ import { TripsService } from './trips.service';
 @Controller('trips')
 @UseGuards(JwtAuthGuard)
 export class TripsController {
-  constructor(private tripsService: TripsService) {}
+  constructor(
+    private tripsService: TripsService,
+  ) {}
 
   @Get()
   getTrips(@Request() req) {
@@ -28,11 +31,14 @@ export class TripsController {
   }
 
   @Post()
-  create(
+  async create(
     @Body() createTripDto: CreateTripDto,
     @Request() req: any,
   ) {
-    this.tripsService.create(createTripDto, req.user.userId);
+    await this.tripsService.create(createTripDto, req.user.userId);
+    const tripDate = new CreateTripDatesDto();
+    tripDate.beginDate = createTripDto.beginDate;
+    tripDate.endDate = createTripDto.endDate; 
   }
 
   @Put(':id')
