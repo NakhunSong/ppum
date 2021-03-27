@@ -8,18 +8,19 @@ import { Trip } from './trip.entity';
 import { TripsService } from './trips.service';
 
 @Controller('trips')
-@UseGuards(JwtAuthGuard)
 export class TripsController {
   constructor(
     private tripsService: TripsService,
   ) {}
 
   @Get()
+  @UseGuards(JwtAuthGuard)
   getTrips(@Request() req) {
     return this.tripsService.findAll(req.user.userId);
   }
 
   @Get(':id')
+  @UseGuards(JwtAuthGuard)
   getTrip(
     @Param('id') tripId: string,
     @Request() req: any,
@@ -31,17 +32,16 @@ export class TripsController {
   }
 
   @Post()
+  @UseGuards(JwtAuthGuard)
   async create(
     @Body() createTripDto: CreateTripDto,
     @Request() req: any,
   ) {
     await this.tripsService.create(createTripDto, req.user.userId);
-    const tripDate = new CreateTripDatesDto();
-    tripDate.beginDate = createTripDto.beginDate;
-    tripDate.endDate = createTripDto.endDate; 
   }
 
   @Put(':id')
+  @UseGuards(JwtAuthGuard)
   invite(
     @Body('username') username: string,
     @Param('id') tripId: string, 

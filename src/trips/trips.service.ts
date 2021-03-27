@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateTripDatesDto } from 'src/trip-dates/dto/create-trip-date.dto';
 import { TripDatesService } from 'src/trip-dates/trip-dates.service';
@@ -36,6 +36,19 @@ export class TripsService {
     });
     return trip;
   }
+
+  async findInviters(tripId: string): Promise<User[]> {
+    try {
+      const trip = await this.tripRepository.findOne({
+        relations: ['users'],
+        where: { id: tripId },
+      });
+      return trip.users;
+    } catch (e) {
+      console.error(e);
+      throw new NotFoundException();
+    }
+  }
   
   async create(createTripDto: CreateTripDto, userId: string) {
     try {
@@ -48,6 +61,7 @@ export class TripsService {
         throw new UnauthorizedException();
       }
       trip.user = user;
+      trip.users = [user];
       const createdTrip = await this.tripRepository.save(trip);
       const { id: tripId } = createdTrip;
       const createTripDatesDto = new CreateTripDatesDto();

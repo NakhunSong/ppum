@@ -14,11 +14,9 @@ export class TripDatesController {
   @Get(':id')
   getDate(
     @Param('id') id,
-    @Query('tripId') tripId,
   ) {
     const selectTripDateDto = new SelectTripDateDto();
     selectTripDateDto.id = id;
-    selectTripDateDto.tripId = tripId;
     return this.tripDatesService.find(selectTripDateDto);
   }
 }

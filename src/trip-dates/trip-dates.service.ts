@@ -16,32 +16,6 @@ export class TripDatesService {
     private tripDateRepository: Repository<TripDate>,
   ) {}
 
-  async findAll(tripId: string) {
-    try {
-      const tripDates = await this.tripDateRepository.find({ 
-        where: { trip: { id: tripId } },
-      });
-      return tripDates;
-    } catch (e) {
-      console.error(e);
-    }
-  }
-
-  async find(selectTripDateDto: SelectTripDateDto) {
-    const { id, tripId } = selectTripDateDto;
-    try {
-      const tripDate = await this.tripDateRepository.findOne({
-        where: {
-          id,
-          trip: { id: tripId },
-        },
-      });
-      return tripDate;
-    } catch (e) {
-      console.error(e);
-    }
-  }
-
   async createTripDates(createTripDatesDto: CreateTripDatesDto) {
     try {
       const {
@@ -64,6 +38,30 @@ export class TripDatesService {
           await this.tripDateRepository.save(tripDate);
         })
       );
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async findAll(tripId: string) {
+    try {
+      const tripDates = await this.tripDateRepository.find({ 
+        where: { trip: { id: tripId } },
+      });
+      return tripDates;
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async find(selectTripDateDto: SelectTripDateDto) {
+    const { id } = selectTripDateDto;
+    try {
+      const tripDate = await this.tripDateRepository.findOne({
+        relations: ['trip'],
+        where: { id },
+      });
+      return tripDate;
     } catch (e) {
       console.error(e);
     }
