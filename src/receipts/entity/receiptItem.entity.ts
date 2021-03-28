@@ -12,6 +12,8 @@ export class ReceiptItem {
   @Column()
   price: number;
 
-  @ManyToOne(() => Receipt, receipt => receipt.receiptItems)
+  @ManyToOne(() => Receipt, receipt => receipt.receiptItems, {
+    onDelete: 'CASCADE',
+  })
   receipt: Receipt;
 }

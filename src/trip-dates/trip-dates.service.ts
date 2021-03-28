@@ -58,7 +58,7 @@ export class TripDatesService {
     const { id } = selectTripDateDto;
     try {
       const tripDate = await this.tripDateRepository.findOne({
-        relations: ['trip'],
+        relations: ['trip', 'receipts'],
         where: { id },
       });
       return tripDate;

@@ -1,10 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TripDatesService } from 'src/trip-dates/trip-dates.service';
+import { CheckInviterDto } from 'src/trips/dto/select-trip.dto';
 import { TripsService } from 'src/trips/trips.service';
 import { Repository } from 'typeorm';
 import { CreateReceiptDto } from './dto/create-receipt.dto';
 import { CreateReceiptItemDto } from './dto/create-receiptItem.dto';
+import { DeleteReceiptDto } from './dto/delete-receipt.dto';
 import { Receipt } from './entity/receipt.entity';
 import { ReceiptItem } from './entity/receiptItem.entity';
 
@@ -15,8 +17,8 @@ export class ReceiptsService {
     private receiptRepository: Repository<Receipt>,
     @InjectRepository(ReceiptItem)
     private receiptItemRepository: Repository<ReceiptItem>,
-    private tripsServices: TripsService,
-    private tripDatesServices: TripDatesService,
+    private tripsService: TripsService,
+    private tripDatesService: TripDatesService,
   ) {}
 
   async createReceiptItem(createReceiptItemDto: CreateReceiptItemDto) {
@@ -40,19 +42,17 @@ export class ReceiptsService {
         location,
         name,
         receiptItems = [],
-        totalPrices,
         tripDateId,
         userId,
       } = createReceiptDto;
-      const tripDate = await this.tripDatesServices.find({ id: tripDateId });
-      if (!tripDate) throw new NotFoundException();
-      const tripId = tripDate && tripDate.trip.id;
-      if (!tripId) throw new NotFoundException();
-      const users = await this.tripsServices.findInviters(tripId);
-      if (!users || users.length === 0) throw new NotFoundException(); 
-      const matchedUser = users.find(user => user.id === userId);
-      if (!matchedUser) throw new NotFoundException();
+      const tripDate = await this.tripDatesService.find({ id: tripDateId });
+      const checkInviterDto = new CheckInviterDto();
+      checkInviterDto.userId = userId;
+      checkInviterDto.tripDateId = tripDateId;
+      const isMatchedUser = await this.tripsService.checkInviter(checkInviterDto);
+      if (!isMatchedUser) throw new NotFoundException();
       const receipt = new Receipt();
+      let totalPrices = 0;
       receipt.location = location;
       receipt.name = name;
       receipt.totalPrices = totalPrices;
@@ -66,11 +66,37 @@ export class ReceiptsService {
             createReceiptItemDto.price = receiptItem.price;
             createReceiptItemDto.receiptId = createdReceipt.id
             await this.createReceiptItem(createReceiptItemDto);
+            totalPrices += receiptItem.price;
           })
-        )
+        );
       }
+      createdReceipt.totalPrices = totalPrices;
+      await this.receiptRepository.save(createdReceipt);
+      return await this.receiptRepository.findOne({
+        relations: ['receiptItems'],
+        where: { id: createdReceipt.id },
+      });
     } catch (e) {
       console.error(e);
+    }
+  }
+
+  async deleteReceipt(deleteReceiptDto: DeleteReceiptDto): Promise<Receipt> {
+    try {
+      const { receiptId, userId } = deleteReceiptDto;
+      const receipt = await this.receiptRepository.findOne({
+        relations: ['tripDate'],
+        where: { id: receiptId },
+      });
+      if (!receipt) throw new NotFoundException();
+      const checkInviterDto = new CheckInviterDto();
+      checkInviterDto.userId = userId;
+      checkInviterDto.tripDateId = receipt.tripDate.id;
+      const isMatchedUser = await this.tripsService.checkInviter(checkInviterDto);
+      if (!isMatchedUser) throw new NotFoundException();
+      return await this.receiptRepository.remove(receipt);
+    } catch (e) {
+      throw new NotFoundException();
     }
   }
 }

@@ -5,7 +5,7 @@ export class CreateReceiptDto {
   location: Location;
   name: string;
   receiptItems?: ReceiptItem[];
-  totalPrices: number;
+  // totalPrices: number;
   tripDateId: string;
   userId?: string;
 }

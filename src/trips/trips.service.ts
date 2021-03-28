@@ -5,7 +5,7 @@ import { TripDatesService } from 'src/trip-dates/trip-dates.service';
 import { User } from 'src/users/user.entity';
 import { Repository } from 'typeorm';
 import { CreateTripDto } from './dto/create-trip.dto';
-import { SelectTripDto } from './dto/select-trip.dto';
+import { CheckInviterDto, SelectTripDto } from './dto/select-trip.dto';
 import { InviteTripDto } from './dto/update-trip.dto';
 import { Trip } from './trip.entity';
 
@@ -16,7 +16,7 @@ export class TripsService {
     private tripRepository: Repository<Trip>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
-    private tripdatesService: TripDatesService,
+    private tripDatesService: TripDatesService,
   ) {}
 
   async findAll(userId: string): Promise<Trip[]> {
@@ -49,6 +49,23 @@ export class TripsService {
       throw new NotFoundException();
     }
   }
+
+  async checkInviter(checkInviterDto: CheckInviterDto): Promise<boolean> {
+    try {
+      const { tripDateId, userId } = checkInviterDto;
+      const tripDate = await this.tripDatesService.find({ id: tripDateId });
+      if (!tripDate) throw new NotFoundException();
+      const tripId = tripDate && tripDate.trip.id;
+      if (!tripId) throw new NotFoundException();
+      const users = await this.findInviters(tripId);
+      if (!users || users.length === 0) throw new NotFoundException(); 
+      const matchedUser = users.find(user => user.id === userId);
+      return matchedUser ? true : false;
+    } catch (e) {
+      console.error(e);
+      throw new NotFoundException();
+    }
+  }
   
   async create(createTripDto: CreateTripDto, userId: string) {
     try {
@@ -68,7 +85,7 @@ export class TripsService {
       createTripDatesDto.tripId = tripId;
       createTripDatesDto.beginDate = createTripDto.beginDate;
       createTripDatesDto.endDate = createTripDto.endDate;
-      await this.tripdatesService.createTripDates(createTripDatesDto);
+      await this.tripDatesService.createTripDates(createTripDatesDto);
     } catch (e) {
       console.error(e);
     }
