@@ -1,10 +1,10 @@
-import { ReceiptItem } from "./receiptItems.interface";
+import { ReceiptItem } from "./receipt-items.interface";
 
 export interface Receipt {
   location: Location;
   name: string;
   receiptItems: ReceiptItem[];
-  totalPrices: number;
+  prices: number;
 }
 export interface Location {
   xPos: number;

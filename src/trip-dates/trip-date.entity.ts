@@ -13,6 +13,6 @@ export class TripDate {
   @OneToMany(() => Receipt, receipt => receipt.tripDate)
   receipts: Receipt[];
 
-  @ManyToOne(() => Trip, trip => trip.tripDate)
+  @ManyToOne(() => Trip, trip => trip.tripDates)
   trip: Trip;
 }

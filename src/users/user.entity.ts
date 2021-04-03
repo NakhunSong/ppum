@@ -18,6 +18,9 @@ export class User {
   @OneToMany(() => Trip, trip => trip.user)
   trip: Trip[];
 
-  @ManyToMany(type => Trip, trip => trip.users)
+  @ManyToMany(() => Trip, trip => trip.users)
   trips: Trip[];
+
+  // @ManyToMany(() => ReceiptItem, receiptItem => receiptItem.users)
+  // receiptItems: ReceiptItem[];
 }

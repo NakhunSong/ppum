@@ -1,4 +1,5 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { User } from "src/users/user.entity";
+import { Column, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Receipt } from "./receipt.entity";
 
 @Entity()
@@ -11,9 +12,16 @@ export class ReceiptItem {
   
   @Column()
   price: number;
+  
+  @Column()
+  prices: number;
 
   @ManyToOne(() => Receipt, receipt => receipt.receiptItems, {
     onDelete: 'CASCADE',
   })
   receipt: Receipt;
+
+  @ManyToMany(() => User)
+  @JoinTable()
+  users: User[];
 }

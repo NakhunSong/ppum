@@ -40,7 +40,7 @@ export class TripsController {
     await this.tripsService.create(createTripDto, req.user.userId);
   }
 
-  @Put(':id')
+  @Put(':id/invite')
   @UseGuards(JwtAuthGuard)
   invite(
     @Body('username') username: string,

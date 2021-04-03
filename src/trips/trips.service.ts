@@ -43,7 +43,7 @@ export class TripsService {
         relations: ['users'],
         where: { id: tripId },
       });
-      return trip.users;
+      return trip.users || [];
     } catch (e) {
       console.error(e);
       throw new NotFoundException();
