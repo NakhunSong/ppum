@@ -1,28 +1,29 @@
-import { Body, Controller, Get, Param, Post, Put, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, Request, UseGuards, UseInterceptors } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { CreateTripDatesDto } from 'src/trip-dates/dto/create-trip-date.dto';
 import { CreateTripDto } from './dto/create-trip.dto';
 import { SelectTripDto } from './dto/select-trip.dto';
 import { InviteTripDto } from './dto/update-trip.dto';
 import { Trip } from './trip.entity';
+import { TripsInterceptor } from './trips.interceptor';
 import { TripsService } from './trips.service';
 
 @Controller('trips')
+@UseGuards(JwtAuthGuard)
+@UseInterceptors(TripsInterceptor)
 export class TripsController {
   constructor(
     private tripsService: TripsService,
   ) {}
 
   @Get()
-  @UseGuards(JwtAuthGuard)
   getTrips(@Request() req) {
     return this.tripsService.findAll(req.user.userId);
   }
 
-  @Get(':id')
-  @UseGuards(JwtAuthGuard)
+  @Get(':tripId')
   getTrip(
-    @Param('id') tripId: string,
+    @Param('tripId') tripId: string,
     @Request() req: any,
   ): Promise<Trip> {
     const selectTripDto = new SelectTripDto();
@@ -32,7 +33,6 @@ export class TripsController {
   }
 
   @Post()
-  @UseGuards(JwtAuthGuard)
   async create(
     @Body() createTripDto: CreateTripDto,
     @Request() req: any,
@@ -40,11 +40,10 @@ export class TripsController {
     await this.tripsService.create(createTripDto, req.user.userId);
   }
 
-  @Put(':id/invite')
-  @UseGuards(JwtAuthGuard)
+  @Put(':tripId/invite')
   invite(
     @Body('username') username: string,
-    @Param('id') tripId: string, 
+    @Param('tripId') tripId: string, 
     @Request() req: any,
   ) {
     const inviteTripDto = new InviteTripDto();

@@ -30,11 +30,6 @@ export class ReceiptsService {
         userId,
       } = createReceiptDto;
       const tripDate = await this.tripDatesService.find({ id: tripDateId });
-      const checkInviterDto = new CheckInviterDto();
-      checkInviterDto.userId = userId;
-      checkInviterDto.tripDateId = tripDateId;
-      const isMatchedUser = await this.tripsService.checkInviter(checkInviterDto);
-      if (!isMatchedUser) throw new NotFoundException();
       const receipt = new Receipt();
       receipt.location = location;
       receipt.name = name;
@@ -126,11 +121,6 @@ export class ReceiptsService {
         where: { id: receiptId },
       });
       if (!receipt) throw new NotFoundException();
-      const checkInviterDto = new CheckInviterDto();
-      checkInviterDto.userId = userId;
-      checkInviterDto.tripDateId = receipt.tripDate.id;
-      const isMatchedUser = await this.tripsService.checkInviter(checkInviterDto);
-      if (!isMatchedUser) throw new NotFoundException();
       return await this.receiptRepository.remove(receipt);
     } catch (e) {
       throw new NotFoundException();

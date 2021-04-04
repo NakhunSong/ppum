@@ -4,6 +4,6 @@ export class SelectTripDto {
 }
 
 export class CheckInviterDto {
-  tripDateId: string;
+  tripId: string;
   userId: string;
 }

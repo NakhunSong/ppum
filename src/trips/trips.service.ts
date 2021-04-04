@@ -52,10 +52,7 @@ export class TripsService {
 
   async checkInviter(checkInviterDto: CheckInviterDto): Promise<boolean> {
     try {
-      const { tripDateId, userId } = checkInviterDto;
-      const tripDate = await this.tripDatesService.find({ id: tripDateId });
-      if (!tripDate) throw new NotFoundException();
-      const tripId = tripDate && tripDate.trip.id;
+      const { tripId, userId } = checkInviterDto;
       if (!tripId) throw new NotFoundException();
       const users = await this.findInviters(tripId);
       if (!users || users.length === 0) throw new NotFoundException(); 
