@@ -2,7 +2,7 @@ import { Body, Controller, Get, Param, Post, Put, Request, UseGuards, UseInterce
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { CreateTripDatesDto } from 'src/trip-dates/dto/create-trip-date.dto';
 import { CreateTripDto } from './dto/create-trip.dto';
-import { SelectTripDto } from './dto/select-trip.dto';
+import { SelectTripByUserDto, SelectTripDto } from './dto/select-trip.dto';
 import { InviteTripDto } from './dto/update-trip.dto';
 import { Trip } from './trip.entity';
 import { TripsInterceptor } from './trips.interceptor';
@@ -10,7 +10,6 @@ import { TripsService } from './trips.service';
 
 @Controller('trips')
 @UseGuards(JwtAuthGuard)
-@UseInterceptors(TripsInterceptor)
 export class TripsController {
   constructor(
     private tripsService: TripsService,
@@ -22,6 +21,7 @@ export class TripsController {
   }
 
   @Get(':tripId')
+  @UseInterceptors(TripsInterceptor)
   getTrip(
     @Param('tripId') tripId: string,
     @Request() req: any,
@@ -30,6 +30,21 @@ export class TripsController {
     selectTripDto.userId = req.user.userId;
     selectTripDto.tripId = tripId;
     return this.tripsService.find(selectTripDto);
+  }
+
+  @Get(':tripId/user/:targetUserId')
+  @UseInterceptors(TripsInterceptor)
+  getTripByUser(
+    @Param() params: any,
+    @Request() req: any,
+  ) {
+    console.log('params: ', params);
+    const { targetUserId, tripId } = params;
+    const selectTripByUserDto = new SelectTripByUserDto();
+    selectTripByUserDto.targetUserId = targetUserId;
+    selectTripByUserDto.tripId = tripId;
+    selectTripByUserDto.userId = req.user.userId;
+    this.tripsService.findByUser(selectTripByUserDto);
   }
 
   @Post()

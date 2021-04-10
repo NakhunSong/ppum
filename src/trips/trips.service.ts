@@ -5,7 +5,7 @@ import { TripDatesService } from 'src/trip-dates/trip-dates.service';
 import { User } from 'src/users/user.entity';
 import { Repository } from 'typeorm';
 import { CreateTripDto } from './dto/create-trip.dto';
-import { CheckInviterDto, SelectTripDto } from './dto/select-trip.dto';
+import { CheckInviterDto, SelectTripByUserDto, SelectTripDto } from './dto/select-trip.dto';
 import { InviteTripDto } from './dto/update-trip.dto';
 import { Trip } from './trip.entity';
 
@@ -20,22 +20,33 @@ export class TripsService {
   ) {}
 
   async findAll(userId: string): Promise<Trip[]> {
-    const trips = await this.tripRepository.find({
-      where: { user: { id: userId } },
-    });
-    return trips;
+    try {
+      const user = await this.userRepository.findOne({
+        relations: ['trips'],
+        where: { id: userId },
+      });
+      if (!user) throw new NotFoundException();
+      return user.trips;
+    } catch (e) {
+      console.error(e);
+      throw new NotFoundException();
+    }
   }
 
   async find(selectTripDto: SelectTripDto): Promise<Trip> {
-    const trip = await this.tripRepository.findOne({
-      relations: ['users'],
-      where: {
-        id: selectTripDto.tripId,
-        user: { id: selectTripDto.userId },
-      },
-    });
-    return trip;
+    try {
+      const trip = await this.tripRepository.findOne({
+        relations: ['tripDates', 'tripDates.receipts'],
+        where: { id: selectTripDto.tripId },
+      });
+      return trip;
+    } catch (e) {
+      console.error(e);
+      throw new NotFoundException();
+    }
   }
+
+  async findByUser(selectTripByUserDto: SelectTripByUserDto) {}
 
   async findInviters(tripId: string): Promise<User[]> {
     try {
