@@ -17,6 +17,9 @@ export class Trip {
   @Column()
   endDate: string;
 
+  @Column()
+  prices: number;
+
   @OneToMany(() => Receipt, receipt => receipt.trip)
   receipts: Receipt[];
 

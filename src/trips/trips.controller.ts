@@ -37,14 +37,13 @@ export class TripsController {
   getTripByUser(
     @Param() params: any,
     @Request() req: any,
-  ) {
-    console.log('params: ', params);
+  ): Promise<Trip> {
     const { targetUserId, tripId } = params;
     const selectTripByUserDto = new SelectTripByUserDto();
     selectTripByUserDto.targetUserId = targetUserId;
     selectTripByUserDto.tripId = tripId;
     selectTripByUserDto.userId = req.user.userId;
-    this.tripsService.findByUser(selectTripByUserDto);
+    return this.tripsService.findByUser(selectTripByUserDto);
   }
 
   @Post()

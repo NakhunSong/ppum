@@ -46,7 +46,43 @@ export class TripsService {
     }
   }
 
-  async findByUser(selectTripByUserDto: SelectTripByUserDto) {}
+  async findByUser(selectTripByUserDto: SelectTripByUserDto): Promise<Trip> {
+    try {
+      const { targetUserId, tripId } = selectTripByUserDto;
+      const trip = await this.tripRepository.findOne({
+        relations: [
+          'tripDates',
+          'tripDates.receipts',
+          'tripDates.receipts.receiptItems',
+          'tripDates.receipts.receiptItems.users',
+        ],
+        where: { id: tripId },
+      });
+      let prices = 0;
+      if (trip.tripDates.length === 0) return trip;
+      const tripDates = trip.tripDates.map(tripDate => {
+        if (tripDate.receipts.length === 0) return tripDate;
+        const receipts = tripDate.receipts.filter(receipt => {
+          if (receipt.receiptItems.length === 0) return false;
+          const receiptItems = receipt.receiptItems.filter(receiptItem => {
+            const user = receiptItem.users.find(user => user.id === targetUserId);
+            if (user) prices += receiptItem.price;
+            return user;
+          });
+          if (receiptItems.length === 0) return false;
+          receipt.receiptItems = receiptItems;
+          return receipt;
+        });
+        tripDate.receipts = receipts;
+        return tripDate;
+      });
+      trip.prices = prices;
+      return trip;
+    } catch (e) {
+      console.error(e);
+      throw new NotFoundException();
+    }
+  }
 
   async findInviters(tripId: string): Promise<User[]> {
     try {
