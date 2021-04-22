@@ -1,0 +1,25 @@
+version: '3'
+
+services:
+  ppum-db:
+    image: mysql:5.7
+    command:
+      - --default-authentication-plugin=mysql_native_password
+    restart: always
+    ports:
+      - 5003:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: '1234'
+      MYSQL_DATABASE: 'ppum'
+  
+  ppum-backend:
+    image: ppum-backend
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    volumes:
+      - ./:/ppum-backend/
+      - /ppum-backend/node_modules
+    ports:
+      - 5002:3000
