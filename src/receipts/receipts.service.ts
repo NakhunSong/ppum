@@ -11,6 +11,7 @@ import { Receipt } from './entity/receipt.entity';
 import { ReceiptItem } from './entity/receipt-item.entity';
 import { Trip } from 'src/trips/trip.entity';
 import { UpdateReceiptDto } from './dto/update-receipt.dto';
+import { UpdateReceiptItemDto } from './dto/update-receipt-item.dto';
 
 @Injectable()
 export class ReceiptsService {
@@ -89,6 +90,29 @@ export class ReceiptsService {
       if (name) receipt.name = name;
       await this.receiptRepository.save(receipt);
       return receipt;
+    } catch (e) {
+      console.error(e);
+      throw new NotFoundException();
+    }
+  }
+
+  async updateReceiptItem(
+    updateReceiptDto: UpdateReceiptItemDto,
+  ): Promise<ReceiptItem> {
+    try {
+      const { name, prices, receiptItemId } = updateReceiptDto;
+      const receiptItem = await this.receiptItemRepository.findOne({
+        relations: ['users'],
+        where: { id: receiptItemId },
+      });
+      if (!receiptItem) throw new NotFoundException();
+      if (name) receiptItem.name = name;
+      if (prices) {
+        receiptItem.prices = prices;
+        receiptItem.price = Math.floor(prices / receiptItem.users.length);
+      }
+      await this.receiptItemRepository.save(receiptItem);
+      return receiptItem;
     } catch (e) {
       console.error(e);
       throw new NotFoundException();
