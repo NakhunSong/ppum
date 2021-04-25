@@ -35,3 +35,10 @@ lerna-debug.log*
 
 # pem
 *.pem
+
+# env
+*.env
+
+# docker
+Dockerfile
+docker-compose.yml
