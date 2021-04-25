@@ -9,10 +9,13 @@ import { CreateReceiptItemDto } from './dto/create-receipt-item.dto';
 import { DeleteReceiptDto } from './dto/delete-receipt.dto';
 import { Receipt } from './entity/receipt.entity';
 import { ReceiptItem } from './entity/receipt-item.entity';
+import { Trip } from 'src/trips/trip.entity';
 
 @Injectable()
 export class ReceiptsService {
   constructor(
+    @InjectRepository(Trip)
+    private tripRepository: Repository<Trip>,
     @InjectRepository(Receipt)
     private receiptRepository: Repository<Receipt>,
     @InjectRepository(ReceiptItem)
@@ -45,73 +48,33 @@ export class ReceiptsService {
 
   async createReceiptItem(createReceiptItemDto: CreateReceiptItemDto) {
     try {
+      const { name, prices, receiptId } = createReceiptItemDto;
       const receipt = await this.receiptRepository.findOne({
-        where: { id: createReceiptItemDto.receiptId },
+        where: { id: receiptId },
         relations: ['trip'],
       });
       if (!receipt) throw new NotFoundException();
-      const users = await this.tripsService.findInviters(receipt.trip.id);
+      const { trip } = receipt;
+      if (!trip) throw new NotFoundException();
+      const users = await this.tripsService.findInviters(trip.id);
       if (!users) throw new NotFoundException();
-      const receiptItemPrices = createReceiptItemDto.prices;
+      const receiptItemPrices = prices;
       const receiptItemPrice = Math.floor(receiptItemPrices / users.length);
       const receiptItem = new ReceiptItem();
-      receiptItem.name = createReceiptItemDto.name;
+      receiptItem.name = name;
       receiptItem.prices = receiptItemPrices;
       receiptItem.price = receiptItemPrice;
       receiptItem.receipt = receipt;
       receiptItem.users = users;
       receipt.prices += receiptItemPrices;
+      trip.prices += prices;
+      await this.tripRepository.save(trip);
       await this.receiptRepository.save(receipt);
       return await this.receiptItemRepository.save(receiptItem);
     } catch (e) {
       console.error(e);
     }
   }
-
-  // async createReceiptBackup(createReceiptDto: CreateReceiptDto) {
-  //   try {
-  //     const {
-  //       location,
-  //       name,
-  //       // receiptItems = [],
-  //       tripDateId,
-  //       userId,
-  //     } = createReceiptDto;
-  //     const tripDate = await this.tripDatesService.find({ id: tripDateId });
-  //     const checkInviterDto = new CheckInviterDto();
-  //     checkInviterDto.userId = userId;
-  //     checkInviterDto.tripDateId = tripDateId;
-  //     const isMatchedUser = await this.tripsService.checkInviter(checkInviterDto);
-  //     if (!isMatchedUser) throw new NotFoundException();
-  //     const receipt = new Receipt();
-  //     let prices = 0;
-  //     receipt.location = location;
-  //     receipt.name = name;
-  //     receipt.prices = prices;
-  //     receipt.tripDate= tripDate;
-  //     const createdReceipt = await this.receiptRepository.save(receipt);
-  //     if (createdReceipt && receiptItems.length !== 0) {
-  //       await Promise.all(
-  //         receiptItems.map(async receiptItem => {
-  //           const createReceiptItemDto = new CreateReceiptItemDto();
-  //           createReceiptItemDto.name = receiptItem.name;
-  //           createReceiptItemDto.price = receiptItem.price;
-  //           createReceiptItemDto.receiptId = createdReceipt.id
-  //           await this.createReceiptItem(createReceiptItemDto);
-  //           prices += receiptItem.price;
-  //         })
-  //       );
-  //     }
-  //     createdReceipt.prices = prices;
-  //     await this.receiptRepository.save(createdReceipt);
-  //     return await this.receiptRepository.findOne({
-  //       relations: ['receiptItems'],
-  //       where: { id: createdReceipt.id },
-  //     });
-  //   } catch (e) {
-  //     console.error(e);
-  //   }
-  // }
 
   async deleteReceipt(deleteReceiptDto: DeleteReceiptDto): Promise<Receipt> {
     try {

@@ -8,10 +8,11 @@ import { TripDatesModule } from 'src/trip-dates/trip-dates.module';
 import { TripsModule } from 'src/trips/trips.module';
 import { ReceiptSubscriber } from './subscriber/receipt.subscriber';
 import { ReceiptItemSubscriber } from './subscriber/receipt-item.subscribe';
+import { Trip } from 'src/trips/trip.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Receipt, ReceiptItem]),
+    TypeOrmModule.forFeature([Receipt, ReceiptItem, Trip]),
     TripsModule,
     TripDatesModule,
   ],
