@@ -17,7 +17,7 @@ export class Trip {
   @Column()
   endDate: string;
 
-  @Column()
+  @Column({ default: 0 })
   prices: number;
 
   @OneToMany(() => Receipt, receipt => receipt.trip)

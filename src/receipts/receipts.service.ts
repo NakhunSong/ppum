@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TripDatesService } from 'src/trip-dates/trip-dates.service';
 import { CheckInviterDto } from 'src/trips/dto/select-trip.dto';
@@ -10,6 +10,7 @@ import { DeleteReceiptDto } from './dto/delete-receipt.dto';
 import { Receipt } from './entity/receipt.entity';
 import { ReceiptItem } from './entity/receipt-item.entity';
 import { Trip } from 'src/trips/trip.entity';
+import { UpdateReceiptDto } from './dto/update-receipt.dto';
 
 @Injectable()
 export class ReceiptsService {
@@ -73,6 +74,24 @@ export class ReceiptsService {
       return await this.receiptItemRepository.save(receiptItem);
     } catch (e) {
       console.error(e);
+    }
+  }
+
+  async updateReceipt(updateReceiptDto: UpdateReceiptDto) {
+    try {
+      const { location, name, receiptId } = updateReceiptDto;
+      const receipt = await this.receiptRepository.findOne({
+        where: { id: receiptId },
+      });
+      if (!receipt) throw new NotFoundException();
+      if (!location && !name) throw new BadRequestException();
+      if (location) receipt.location = location;
+      if (name) receipt.name = name;
+      await this.receiptRepository.save(receipt);
+      return receipt;
+    } catch (e) {
+      console.error(e);
+      throw new NotFoundException();
     }
   }
 

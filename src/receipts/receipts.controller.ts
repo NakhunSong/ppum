@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Param, Post, Query, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Param, Patch, Post, Query, Request, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { CreateReceiptDto } from './dto/create-receipt.dto';
 import { CreateReceiptItemDto } from './dto/create-receipt-item.dto';
@@ -6,6 +6,7 @@ import { DeleteReceiptDto } from './dto/delete-receipt.dto';
 import { Receipt } from './entity/receipt.entity';
 import { ReceiptItem } from './entity/receipt-item.entity';
 import { ReceiptsService } from './receipts.service';
+import { UpdateReceiptDto } from './dto/update-receipt.dto';
 
 @Controller('receipts')
 @UseGuards(JwtAuthGuard)
@@ -30,6 +31,19 @@ export class ReceiptsController {
   ): Promise<ReceiptItem> {
     createReceiptItemDto.receiptId = receiptId;
     return await this.receiptsService.createReceiptItem(createReceiptItemDto);
+  }
+
+  @Patch(':receiptId')
+  async updateReceipt(
+    @Param('receiptId') receiptId,
+    @Body() body,
+  ): Promise<Receipt> {
+    const { location, name } = body;
+    const updateReceiptDto = new UpdateReceiptDto();
+    if (location) updateReceiptDto.location = location;
+    if (name) updateReceiptDto.name = name;
+    updateReceiptDto.receiptId = receiptId;
+    return await this.receiptsService.updateReceipt(updateReceiptDto);
   }
 
   @Delete(':receiptId')

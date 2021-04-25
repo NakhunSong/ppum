@@ -30,7 +30,7 @@ export class TripDatesService {
       const start = DateTime.fromISO(beginDate);
       const { days } = end.diff(start, 'days');
       Promise.all(
-        Array.from({ length: days }).map(async (e, i) => {
+        Array.from({ length: days + 1 }).map(async (e, i) => {
           const tripDate = new TripDate();
           const date = DateTime.fromISO(beginDate);
           tripDate.date = date.plus({ days: i }).toISODate();
