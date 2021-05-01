@@ -11,17 +11,20 @@ import { Receipt } from './entity/receipt.entity';
 import { ReceiptItem } from './entity/receipt-item.entity';
 import { Trip } from 'src/trips/trip.entity';
 import { UpdateReceiptDto } from './dto/update-receipt.dto';
-import { UpdateReceiptItemDto } from './dto/update-receipt-item.dto';
+import { UpdateReceiptItemDto, UpdateUserOfReceiptItemDto } from './dto/update-receipt-item.dto';
+import { User } from 'src/users/user.entity';
 
 @Injectable()
 export class ReceiptsService {
   constructor(
-    @InjectRepository(Trip)
-    private tripRepository: Repository<Trip>,
     @InjectRepository(Receipt)
     private receiptRepository: Repository<Receipt>,
     @InjectRepository(ReceiptItem)
     private receiptItemRepository: Repository<ReceiptItem>,
+    @InjectRepository(Trip)
+    private tripRepository: Repository<Trip>,
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
     private tripsService: TripsService,
     private tripDatesService: TripDatesService,
   ) {}
@@ -116,6 +119,49 @@ export class ReceiptsService {
     } catch (e) {
       console.error(e);
       throw new NotFoundException();
+    }
+  }
+
+  async updateUserOfReceiptItem(
+    updateUserOfReceiptItemDto: UpdateUserOfReceiptItemDto,
+  ): Promise<ReceiptItem> {
+    try {
+      const {
+        action,
+        userId,
+        receiptItemId,
+      } = updateUserOfReceiptItemDto;
+      const receiptItem = await this.receiptItemRepository.findOne({
+        relations: ['users'],
+        where: { id: receiptItemId },
+      });
+      const user = await this.userRepository.findOne({
+        where: { id: userId },
+      });
+      let users = receiptItem.users;
+      switch (action) {
+        case 'add': {
+          const set = new Set(users.map(u => u.id));
+          if (!set.has(userId)) {
+            users = [...receiptItem.users, user];
+          }
+          break;
+        }
+        case 'remove': {
+          users = receiptItem.users.filter(u => u.id !== userId)
+          break;
+        }
+        default: {
+          throw new BadRequestException();
+        }
+      }
+      receiptItem.users = users;
+      receiptItem.price = Math.floor(receiptItem.prices / users.length);
+      await this.receiptItemRepository.save(receiptItem); 
+      return receiptItem;
+    } catch (e) {
+      console.error(e);
+      throw new BadRequestException();
     }
   }
 

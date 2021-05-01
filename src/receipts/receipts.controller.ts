@@ -7,7 +7,7 @@ import { Receipt } from './entity/receipt.entity';
 import { ReceiptItem } from './entity/receipt-item.entity';
 import { ReceiptsService } from './receipts.service';
 import { UpdateReceiptDto } from './dto/update-receipt.dto';
-import { UpdateReceiptItemDto } from './dto/update-receipt-item.dto';
+import { UpdateReceiptItemDto, UpdateUserOfReceiptItemDto } from './dto/update-receipt-item.dto';
 
 @Controller('receipts')
 @UseGuards(JwtAuthGuard)
@@ -58,6 +58,15 @@ export class ReceiptsController {
     updateReceiptItemDto.prices = prices;
     updateReceiptItemDto.receiptItemId = receiptItemId;
     return this.receiptsService.updateReceiptItem(updateReceiptItemDto);
+  }
+
+  @Patch(':receiptId/item/:receiptItemId/user')
+  async updateUserOfReceiptItem(
+    @Body() updateUserOfReceiptItemDto: UpdateUserOfReceiptItemDto,
+    @Param('receiptItemId') receiptItemId,
+  ): Promise<ReceiptItem> {
+    updateUserOfReceiptItemDto.receiptItemId = receiptItemId;
+    return this.receiptsService.updateUserOfReceiptItem(updateUserOfReceiptItemDto);
   }
 
   @Delete(':receiptId')
