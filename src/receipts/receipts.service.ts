@@ -178,4 +178,17 @@ export class ReceiptsService {
       throw new NotFoundException();
     }
   }
+
+  async deleteReceiptItem(receiptItemId: string) {
+    try {
+      const receiptItem = await this.receiptItemRepository.findOne({
+        where: { id: receiptItemId },
+      });
+      if (!receiptItem) throw new NotFoundException();
+      await this.receiptItemRepository.remove(receiptItem);
+    } catch (e) {
+      console.error(e);
+      throw new BadRequestException();
+    }
+  }
 }

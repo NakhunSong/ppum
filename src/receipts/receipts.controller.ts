@@ -57,7 +57,7 @@ export class ReceiptsController {
     updateReceiptItemDto.name = name;
     updateReceiptItemDto.prices = prices;
     updateReceiptItemDto.receiptItemId = receiptItemId;
-    return this.receiptsService.updateReceiptItem(updateReceiptItemDto);
+    return await this.receiptsService.updateReceiptItem(updateReceiptItemDto);
   }
 
   @Patch(':receiptId/item/:receiptItemId/user')
@@ -66,7 +66,7 @@ export class ReceiptsController {
     @Param('receiptItemId') receiptItemId,
   ): Promise<ReceiptItem> {
     updateUserOfReceiptItemDto.receiptItemId = receiptItemId;
-    return this.receiptsService.updateUserOfReceiptItem(updateUserOfReceiptItemDto);
+    return await this.receiptsService.updateUserOfReceiptItem(updateUserOfReceiptItemDto);
   }
 
   @Delete(':receiptId')
@@ -78,5 +78,12 @@ export class ReceiptsController {
     deleteReceiptDto.receiptId = receiptId;
     deleteReceiptDto.userId = req.user.userId;
     return await this.receiptsService.deleteReceipt(deleteReceiptDto);
+  }
+
+  @Delete('item/:receiptItemId')
+  async deleteReceiptItem(
+    @Param('receiptItemId') receiptItemId,
+  ) {
+    await this.receiptsService.deleteReceiptItem(receiptItemId);
   }
 }
