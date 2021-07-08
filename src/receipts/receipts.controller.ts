@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Param, Patch, Post, Put, Query, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Query, Request, UseGuards, UseInterceptors } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { CreateReceiptDto } from './dto/create-receipt.dto';
 import { CreateReceiptItemDto } from './dto/create-receipt-item.dto';
@@ -8,13 +8,22 @@ import { ReceiptItem } from './entity/receipt-item.entity';
 import { ReceiptsService } from './receipts.service';
 import { UpdateReceiptDto } from './dto/update-receipt.dto';
 import { UpdateReceiptItemDto, UpdateUserOfReceiptItemDto } from './dto/update-receipt-item.dto';
+import { TripsInterceptor } from 'src/trips/trips.interceptor';
 
 @Controller('receipts')
 @UseGuards(JwtAuthGuard)
+// @UseInterceptors(TripsInterceptor)
 export class ReceiptsController {
   constructor(
     private receiptsService: ReceiptsService,
   ) {}
+
+  @Get(':receiptId')
+  async getReceipt(
+    @Param('receiptId') receiptId: string,
+  ): Promise<Receipt> {
+    return await this.receiptsService.findReceipt(receiptId);
+  }
 
   @Post()
   async createReceipt(

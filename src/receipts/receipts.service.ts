@@ -29,6 +29,19 @@ export class ReceiptsService {
     private tripDatesService: TripDatesService,
   ) {}
 
+  async findReceipt(receiptId: string) {
+    try {
+      const receipt = await this.receiptRepository.findOne({
+        where: { id: receiptId },
+        relations: ['receiptItems'],
+      });
+      if (!receipt) throw new NotFoundException();
+      return receipt;
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
   async createReceipt(createReceiptDto: CreateReceiptDto) {
     try {
       const {
