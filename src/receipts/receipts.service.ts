@@ -33,7 +33,7 @@ export class ReceiptsService {
     try {
       const receipt = await this.receiptRepository.findOne({
         where: { id: receiptId },
-        relations: ['receiptItems'],
+        relations: ['receiptItems', 'receiptItems.users'],
       });
       if (!receipt) throw new NotFoundException();
       return receipt;
