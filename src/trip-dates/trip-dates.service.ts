@@ -46,6 +46,7 @@ export class TripDatesService {
   async findAll(tripId: string) {
     try {
       const tripDates = await this.tripDateRepository.find({ 
+        relations: ['receipts'],
         where: { trip: { id: tripId } },
       });
       return tripDates;
