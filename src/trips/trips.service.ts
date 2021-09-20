@@ -36,7 +36,7 @@ export class TripsService {
   async find(selectTripDto: SelectTripDto): Promise<Trip> {
     try {
       const trip = await this.tripRepository.findOne({
-        relations: ['tripDates', 'tripDates.receipts'],
+        relations: ['tripDates', 'tripDates.receipts', 'tripDates.receipts.receiptItems'],
         where: { id: selectTripDto.tripId },
       });
       return trip;

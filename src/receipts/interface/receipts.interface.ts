@@ -7,6 +7,6 @@ export interface Receipt {
   prices: number;
 }
 export interface Location {
-  xPos: number;
-  yPos: number;
+  lat: number;
+  lng: number;
 }
