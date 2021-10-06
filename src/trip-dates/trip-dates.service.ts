@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Trip } from 'src/trips/trip.entity';
 import { Repository } from 'typeorm';
@@ -29,13 +29,16 @@ export class TripDatesService {
       const end = DateTime.fromISO(endDate);
       const start = DateTime.fromISO(beginDate);
       const { days } = end.diff(start, 'days');
+      if (isNaN(days)) {
+        throw new BadRequestException();
+      }
       Promise.all(
         Array.from({ length: days + 1 }).map(async (e, i) => {
           const tripDate = new TripDate();
           const date = DateTime.fromISO(beginDate);
           tripDate.date = date.plus({ days: i }).toISODate();
           tripDate.trip = trip;
-          await this.tripDateRepository.save(tripDate);
+          return await this.tripDateRepository.save(tripDate);
         })
       );
     } catch (e) {

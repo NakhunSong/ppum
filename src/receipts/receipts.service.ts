@@ -118,16 +118,22 @@ export class ReceiptsService {
     try {
       const { name, prices, receiptItemId } = updateReceiptDto;
       const receiptItem = await this.receiptItemRepository.findOne({
-        relations: ['users'],
+        relations: ['users', 'receipt'],
         where: { id: receiptItemId },
       });
       if (!receiptItem) throw new NotFoundException();
+      const receipt = await this.receiptRepository.findOne({
+        where: { id: receiptItem.receipt.id },
+      })
       if (name) receiptItem.name = name;
       if (prices) {
+        receipt.prices -= receiptItem.prices;
         receiptItem.prices = prices;
         receiptItem.price = Math.floor(prices / receiptItem.users.length);
+        receipt.prices += receiptItem.prices;
       }
       await this.receiptItemRepository.save(receiptItem);
+      await this.receiptRepository.save(receipt)
       return receiptItem;
     } catch (e) {
       console.error(e);
